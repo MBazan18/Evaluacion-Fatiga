@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Evaluación de Fatiga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    label { display: block; margin-top: 15px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; width: 100%; background-color: #007bff; color: white; border: none; }
+    #respuesta { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Evaluación de Fatiga y Somnolencia</h2>
+  <form id="fatigaForm">
+    <label>DNI:
+      <input type="text" name="dni" required />
+    </label>
+
+    <label>¿Dormiste menos de 6h?
+      <select name="dormiste">
+        <option value="no">No</option>
+        <option value="sí">Sí</option>
+      </select>
+    </label>
+
+    <label>¿Te sientes somnoliento?
+      <select name="somnoliento">
+        <option value="no">No</option>
+        <option value="sí">Sí</option>
+      </select>
+    </label>
+
+    <label>¿Qué tan alerta estás? (1 = nada, 5 = muy alerta)
+      <input type="number" name="alerta" min="1" max="5" required />
+    </label>
+
+    <label>¿Trabajaste más de 12h en las últimas 24h?
+      <select name="turno_largo">
+        <option value="no">No</option>
+        <option value="sí">Sí</option>
+      </select>
+    </label>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="respuesta"></p>
+
+  <script>
+    const form = document.getElementById("fatigaForm");
+    const respuesta = document.getElementById("respuesta");
+    const url = "https://script.google.com/macros/s/AKfycbwKzgpCuy6u_S4uGJ6ju9pW9FtUCy572HFYeGpd1IYeFQPHHICX07tasBRGn9HRdcwD/exec";
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      const res = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (res.ok) {
+        respuesta.textContent = "Formulario enviado correctamente.";
+        respuesta.style.color = "green";
+        form.reset();
+      } else {
+        respuesta.textContent = "Error al enviar.";
+        respuesta.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
