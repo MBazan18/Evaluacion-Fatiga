@@ -73,7 +73,7 @@
 <body>
   <h1>Evaluación de Fatiga y Somnolencia</h1>
 
-  <form onsubmit="handleSubmit(event)">
+  <form id="fatigaForm">
     <label for="dni">DNI del trabajador:</label>
     <input type="text" id="dni" name="dni" required />
 
@@ -111,51 +111,34 @@
   <div id="mensaje" class="mensaje"></div>
 
   <script>
-    function handleSubmit(event) {
-      event.preventDefault();
+    document.getElementById("fatigaForm").addEventListener("submit", function (e) {
+      e.preventDefault();
 
-      const dni = document.getElementById('dni').value.trim();
-      const dormiste = document.querySelector('input[name="dormiste"]:checked')?.value || '';
-      const somnoliento = document.querySelector('input[name="somnoliento"]:checked')?.value || '';
-      const alerta = document.getElementById('alerta').value;
-      const turno_largo = document.querySelector('input[name="turno_largo"]:checked')?.value || '';
-      const mensajeDiv = document.getElementById('mensaje');
+      const form = e.target;
+      const formData = new FormData(form);
+      const mensajeDiv = document.getElementById("mensaje");
 
-      if (!dni || !dormiste || !somnoliento || !alerta || !turno_largo) {
-        mensajeDiv.textContent = "Por favor, completa todos los campos.";
-        mensajeDiv.className = "mensaje error";
-        mensajeDiv.style.display = "block";
-        return;
-      }
-
-      const data = {
-        dni,
-        dormiste,
-        somnoliento,
-        alerta,
-        turno_largo
-      };
-
-      const url = "https://script.google.com/macros/s/AKfycbyFNPX7MjdgN9A-Tp66rkPtVv10r6DPNtwO3rEqUizUFtn7r2ZwfqAuO6_QjGwl-UAx/exec"; // 👉 Reemplaza esto con tu URL del Web App
+      // 👉 Coloca aquí la URL de tu Web App:
+      const url = "https://script.google.com/macros/s/AKfycbyFNPX7MjdgN9A-Tp66rkPtVv10r6DPNtwO3rEqUizUFtn7r2ZwfqAuO6_QjGwl-UAx/exec"; // ← Reemplaza esto con tu URL real
 
       fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      }).then(() => {
-        mensajeDiv.textContent = "✅ ¡Evaluación registrada correctamente!";
+        body: formData
+      })
+      .then(response => response.text())
+      .then(responseText => {
+        mensajeDiv.textContent = "✅ Evaluación enviada correctamente.";
         mensajeDiv.className = "mensaje exito";
         mensajeDiv.style.display = "block";
-        document.querySelector("form").reset();
-      }).catch(() => {
-        mensajeDiv.textContent = "❌ Error al registrar la evaluación.";
+        form.reset();
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        mensajeDiv.textContent = "❌ Error al enviar la evaluación.";
         mensajeDiv.className = "mensaje error";
         mensajeDiv.style.display = "block";
       });
-    }
+    });
   </script>
 </body>
 </html>
-
