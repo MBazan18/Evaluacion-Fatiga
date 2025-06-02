@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
+      max-width: 600px;
       margin: 30px auto;
       padding: 20px;
       border: 1px solid #ccc;
@@ -23,9 +23,10 @@
     label {
       display: block;
       margin-top: 15px;
+      font-weight: bold;
     }
 
-    input, select {
+    input[type="text"], select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
@@ -37,8 +38,10 @@
       background-color: #28a745;
       color: white;
       border: none;
+      padding: 10px 15px;
       margin-top: 20px;
       cursor: pointer;
+      border-radius: 6px;
     }
 
     input[type="submit"]:hover {
@@ -61,6 +64,10 @@
       background-color: #f8d7da;
       color: #721c24;
     }
+
+    .radio-group {
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
@@ -70,21 +77,33 @@
     <label for="dni">DNI del trabajador:</label>
     <input type="text" id="dni" name="dni" required />
 
-    <label for="fatiga">Nivel de fatiga:</label>
-    <select id="fatiga" name="fatiga" required>
-      <option value="">Selecciona una opción</option>
-      <option value="Bajo">Bajo</option>
-      <option value="Moderado">Moderado</option>
-      <option value="Alto">Alto</option>
+    <label>¿Te dormiste en el trabajo?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="dormiste" value="sí" required> Sí</label>
+      <label><input type="radio" name="dormiste" value="no"> No</label>
+    </div>
+
+    <label>¿Estás somnoliento?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="somnoliento" value="sí" required> Sí</label>
+      <label><input type="radio" name="somnoliento" value="no"> No</label>
+    </div>
+
+    <label for="alerta">¿Qué tan alerta estás? (1=bajo, 5=alto)</label>
+    <select id="alerta" name="alerta" required>
+      <option value="">Selecciona</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
     </select>
 
-    <label for="somnolencia">Nivel de somnolencia:</label>
-    <select id="somnolencia" name="somnolencia" required>
-      <option value="">Selecciona una opción</option>
-      <option value="No">No</option>
-      <option value="Algo">Algo</option>
-      <option value="Mucho">Mucho</option>
-    </select>
+    <label>¿Tu turno supera las 10 horas?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="turno_largo" value="sí" required> Sí</label>
+      <label><input type="radio" name="turno_largo" value="no"> No</label>
+    </div>
 
     <input type="submit" value="Enviar evaluación" />
   </form>
@@ -96,26 +115,35 @@
       event.preventDefault();
 
       const dni = document.getElementById('dni').value.trim();
-      const fatiga = document.getElementById('fatiga').value;
-      const somnolencia = document.getElementById('somnolencia').value;
+      const dormiste = document.querySelector('input[name="dormiste"]:checked')?.value || '';
+      const somnoliento = document.querySelector('input[name="somnoliento"]:checked')?.value || '';
+      const alerta = document.getElementById('alerta').value;
+      const turno_largo = document.querySelector('input[name="turno_largo"]:checked')?.value || '';
       const mensajeDiv = document.getElementById('mensaje');
 
-      if (!dni || !fatiga || !somnolencia) {
+      if (!dni || !dormiste || !somnoliento || !alerta || !turno_largo) {
         mensajeDiv.textContent = "Por favor, completa todos los campos.";
         mensajeDiv.className = "mensaje error";
         mensajeDiv.style.display = "block";
         return;
       }
 
-      const url = "https://script.google.com/macros/s/AKfycbwKzgpCuy6u_S4uGJ6ju9pW9FtUCy572HFYeGpd1IYeFQPHHICX07tasBRGn9HRdcwD/exec"; // 👈 Reemplaza aquí
+      const data = {
+        dni,
+        dormiste,
+        somnoliento,
+        alerta,
+        turno_largo
+      };
+
+      const url = "https://script.google.com/macros/s/AKfycbwKzgpCuy6u_S4uGJ6ju9pW9FtUCy572HFYeGpd1IYeFQPHHICX07tasBRGn9HRdcwD/exec"; // 👉 Reemplaza esto con tu URL del Web App
 
       fetch(url, {
         method: "POST",
-        mode: "no-cors",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json"
         },
-        body: `dni=${encodeURIComponent(dni)}&fatiga=${encodeURIComponent(fatiga)}&somnolencia=${encodeURIComponent(somnolencia)}`
+        body: JSON.stringify(data)
       }).then(() => {
         mensajeDiv.textContent = "✅ ¡Evaluación registrada correctamente!";
         mensajeDiv.className = "mensaje exito";
@@ -130,3 +158,4 @@
   </script>
 </body>
 </html>
+
